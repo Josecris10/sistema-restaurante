@@ -33,5 +33,5 @@ Este proyecto nace de la necesidad de modernizar la gestión operativa de un res
 ## 4. Usuarios del sistema
 
 * **Garzón:** Encargado de la atención y registro de pedidos.
-* **Cocina:** Personal encargado de la preparación y control de porciones diarias.
+* **Cocina:** Personal encargado de la preparación y control de comidas diarias.
 * **Administrador:** Dueño encargado de la carta, precios y compras.
