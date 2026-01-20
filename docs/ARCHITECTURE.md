@@ -31,6 +31,7 @@ erDiagram
 %% Esto es un comentario: Define la relación
 TABLE ||--o{ ORDER : "has"
 ORDER ||--|{ ITEM_DETAIL: "contains"
+RECIPE_MENU }o--|| RECIPE : "contains"
 SUPPLY ||--o{ RECIPE_SUPPLY : "is used in"
 ITEM_DETAIL }o--|| ITEM: "corresponds to "
 ITEM ||--o| RECIPE: "corresponds to"
