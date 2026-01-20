@@ -29,12 +29,17 @@ Este diagrama define la estructura de la base de datos y las relaciones entre en
 
 erDiagram
 %% Esto es un comentario: Define la relación
-TABLE ||--o{ ORDER : "tiene"
-ORDER ||--|{ ITEM_DETAIL: "contiene"
-INGREDIENT ||--o{ INGREDIENT_RECIPE : "se usa en"
-ITEM ||--o| RECIPE: "corresponde a"
-ITEM_DETAIL }o--|| ITEM: "tiene"
-USER ||--o{ ORDER: "se encarga de"
+TABLE ||--o{ ORDER : "has"
+ORDER ||--|{ ITEM_DETAIL: "contains"
+SUPPLY ||--o{ RECIPE_SUPPLY : "is used in"
+ITEM_DETAIL }o--|| ITEM: "corresponds to "
+ITEM ||--o| RECIPE: "corresponds to"
+ITEM |o--o| SUPPLY : "corresponds to"
+USER ||--o{ ORDER: "takes care of"
+MENU ||--|{ RECIPE_MENU : "has"
+DAILY_PRODUCTION }o--|| RECIPE : "tracks"
+SUPPLY ||--o{ SUPPLY_BATCH:"has lots of"
+
 
 
     USER {
@@ -56,8 +61,9 @@ USER ||--o{ ORDER: "se encarga de"
         int table_id FK
         int waiter_id FK
         string kitchen_state
-        bool is_paid
+        string order_state
         string client_name
+        datetime closed_at
     }
 
     ITEM {
@@ -83,21 +89,52 @@ USER ||--o{ ORDER: "se encarga de"
 
     }
 
-    INGREDIENT_RECIPE {
+    RECIPE_SUPPLY {
       int id PK
-      int ingredient_id FK
+      int supply_id FK
       int recipe_id FK
       float quantity
     }
 
-    INGREDIENT {
+    SUPPLY {
       int id PK
       string name
-      int actual_stock
       int minimum_stock
       string unit_measurement
+      enum type
     }
 
+    SUPPLY_BATCH {
+      int id PK
+      int supply_id FK
+      int initial_quantity
+      int remaining_quantity
+      date expiration_date
+      date received_date
+      int cost_price
+    }
+
+    MENU {
+      int id PK
+      string name
+      datetime scheduled_date
+    }
+
+    RECIPE_MENU {
+      int id PK
+      int recipe_id FK
+      int menu_id FK
+      enum course_type
+
+    }
+
+    DAILY_PRODUCTION {
+      int id PK
+      int recipe_id FK
+      datetime scheduled_date
+      int total
+      int remaining
+    }
 
 
 ```
