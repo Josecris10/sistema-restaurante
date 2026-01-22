@@ -1,0 +1,5 @@
+export enum SupplyType {
+  INGREDIENT = 'INGREDIENT',
+  PRODUCT = 'PRODUCT',
+  OPERATIONAL = 'OPERATIONAL',
+}
