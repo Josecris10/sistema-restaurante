@@ -25,6 +25,7 @@ import { RecipeSupply } from './modules/recipes/entities/recipe-supply.entity';
 import { Supply } from './modules/supplies/entities/supply.entity';
 import { SupplyBatch } from './modules/supplies/entities/supply-batch.entity';
 import { User } from './modules/users/entities/user.entity';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { User } from './modules/users/entities/user.entity';
     RecipesModule,
     SuppliesModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

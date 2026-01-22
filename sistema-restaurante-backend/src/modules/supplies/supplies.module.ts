@@ -5,9 +5,10 @@ import { SuppliesController } from './supplies.controller';
 
 import { Supply } from './entities/supply.entity';
 import { SupplyBatch } from './entities/supply-batch.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Supply, SupplyBatch])],
+  imports: [TypeOrmModule.forFeature([Supply, SupplyBatch]), AuthModule],
   controllers: [SuppliesController],
   providers: [SuppliesService],
   exports: [SuppliesService],
