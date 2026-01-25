@@ -119,7 +119,6 @@ SUPPLY ||--o{ SUPPLY_BATCH:"has lots of"
     MENU {
       int id PK
       string name
-      datetime scheduled_date
     }
 
     RECIPE_MENU {
@@ -136,6 +135,7 @@ SUPPLY ||--o{ SUPPLY_BATCH:"has lots of"
       datetime scheduled_date
       int total
       int remaining
+      enum status
     }
 
 

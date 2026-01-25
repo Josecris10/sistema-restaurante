@@ -8,6 +8,12 @@ export class DailyProduction extends BaseEntity {
   @Column({ type: 'date', name: 'scheduled_date ' })
   scheduledDate: string;
 
+  @Column({ name: 'total', type: 'int' })
+  total: number;
+
+  @Column({ name: 'remaining', type: 'int' })
+  remaining: number;
+
   @ManyToOne(() => Recipe, (recipe) => recipe.dailyProductions)
   @JoinColumn({ name: 'recipe_id' })
   recipe: Recipe;
