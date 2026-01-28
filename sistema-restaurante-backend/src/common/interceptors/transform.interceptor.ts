@@ -8,24 +8,24 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface Response<T> {
-  data: T;
-  total?: number;
+  data: T[];
+  total: number;
 }
 
 @Injectable()
-export class TransformInterceptor<T> implements NestInterceptor<
-  T,
-  Response<T>
-> {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Observable<Response<T>> {
+export class TransformInterceptor<T> implements NestInterceptor<T, any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((data) => ({
-        total: Array.isArray(data) ? data.length : undefined,
-        data: data,
-      })),
+      map((res) => {
+        if (res && typeof res === 'object' && 'data' in res && 'total' in res) {
+          return res;
+        }
+
+        return {
+          total: Array.isArray(res) ? res.length : res ? 1 : undefined,
+          data: res,
+        };
+      }),
     );
   }
 }

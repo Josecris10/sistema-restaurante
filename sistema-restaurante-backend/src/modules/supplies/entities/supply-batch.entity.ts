@@ -8,13 +8,17 @@ export class SupplyBatch extends BaseEntity {
   @Column({ name: 'initial_quantity', type: 'float', nullable: false })
   initialQuantity: number;
 
-  @Column({ name: 'remaining_quantity', type: 'float' })
+  @Column({ name: 'remaining_quantity', type: 'float', nullable: true })
   remainingQuantity: number;
 
   @Column({ name: 'expiration_date', type: 'date' })
   expirationDate: Date;
 
-  @Column({ name: 'received_date', type: 'date' })
+  @Column({
+    name: 'received_date',
+    type: 'date',
+    default: () => 'CURRENT_DATE',
+  })
   received_date: Date;
 
   @Column({ name: 'cost_price', type: 'int', nullable: false })
