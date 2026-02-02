@@ -5,6 +5,14 @@ import { Supply } from './supply.entity';
 
 @Entity('supply_batches')
 export class SupplyBatch extends BaseEntity {
+  @Column({
+    name: 'product_name',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  brand: string;
+
   @Column({ name: 'initial_quantity', type: 'float', nullable: false })
   initialQuantity: number;
 
@@ -19,7 +27,7 @@ export class SupplyBatch extends BaseEntity {
     type: 'date',
     default: () => 'CURRENT_DATE',
   })
-  received_date: Date;
+  receivedDate: Date;
 
   @Column({ name: 'cost_price', type: 'int', nullable: false })
   costPrice: number;

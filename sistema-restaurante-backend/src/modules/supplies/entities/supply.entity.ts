@@ -18,7 +18,7 @@ export class Supply extends BaseEntity {
   })
   name: string;
 
-  @Column({ name: 'minimum_stock', type: 'int' })
+  @Column({ name: 'minimum_stock', type: 'float', default: 0 })
   minimumStock: number;
 
   @Column({ name: 'unit_measurement', type: 'varchar', length: 20 })

@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -6,6 +10,8 @@ import { Supply } from './entities/supply.entity';
 import { SupplyBatch } from './entities/supply-batch.entity';
 import { GetSuppliesFilterDto } from './dto/get-supplies-filter.dto';
 import { SupplyResponseDto } from './dto/supply-response.dto';
+import { CreateSupplyBatchDto } from './dto/create-supply-batch.dto';
+import { CreateSupplyDto } from './dto/create-supply.dto';
 
 @Injectable()
 export class SuppliesService {
@@ -64,5 +70,51 @@ export class SuppliesService {
     }));
 
     return { data, total };
+  }
+
+  async createBatch(createBatchDto: CreateSupplyBatchDto) {
+    const { supplyId, ...batchData } = createBatchDto;
+
+    const supply = await this.supplyRepository.findOneBy({ id: supplyId });
+
+    if (!supply) {
+      throw new NotFoundException(
+        `Insumo con ID ${supplyId} no encontrado. No se puede crear el lote.`,
+      );
+    }
+
+    const newBatch = this.supplyBatchRepository.create({
+      ...batchData,
+      supply,
+    });
+
+    const savedBatch = await this.supplyBatchRepository.save(newBatch);
+
+    return {
+      id: savedBatch.id,
+      initialQuantity: Number(savedBatch.initialQuantity),
+      costPrice: Number(savedBatch.costPrice),
+      expirationDate: savedBatch.expirationDate,
+      receivedDate: savedBatch.receivedDate,
+      supplyName: supply.name,
+    };
+  }
+
+  async create(createSupplyDto: CreateSupplyDto) {
+    const { name } = createSupplyDto;
+
+    const existingSupply = await this.supplyRepository.findOne({
+      where: { name: name.trim() },
+    });
+
+    if (existingSupply) {
+      throw new ConflictException(
+        `El insumo "${name}" ya existe en el sistema.`,
+      );
+    }
+
+    const newSupply = this.supplyRepository.create(createSupplyDto);
+
+    return await this.supplyRepository.save(newSupply);
   }
 }
