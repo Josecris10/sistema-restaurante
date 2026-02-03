@@ -30,17 +30,25 @@ export class CreateSupplyBatchDto {
   @IsPositive()
   initialQuantity: number;
 
-  @ApiProperty({ example: 2500.5, description: 'Costo de compra por unidad' })
+  @ApiProperty({ example: 2500, description: 'Costo de compra por unidad' })
   @IsNumber()
   @IsPositive()
   costPrice: number;
 
-  @ApiProperty({ example: '2026-12-31', required: false })
+  @ApiProperty({
+    example: '2026-12-31',
+    description: 'Fecha de vencimiento del producto',
+    required: false,
+  })
   @IsOptional()
   @IsDateString()
   expirationDate?: string;
 
-  @ApiProperty({ example: '2026-12-31', required: false })
+  @ApiProperty({
+    example: '2026-12-31',
+    description: 'Fecha de ingreso del producto a bodega',
+    required: false,
+  })
   @IsOptional()
   @IsDateString()
   receivedDate?: string;

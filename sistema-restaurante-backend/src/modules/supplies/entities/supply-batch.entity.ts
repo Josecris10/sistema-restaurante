@@ -6,7 +6,7 @@ import { Supply } from './supply.entity';
 @Entity('supply_batches')
 export class SupplyBatch extends BaseEntity {
   @Column({
-    name: 'product_name',
+    name: 'brand',
     type: 'varchar',
     length: 100,
     nullable: true,

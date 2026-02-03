@@ -31,7 +31,7 @@ export class GetSuppliesFilterDto {
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  minimumStock?: number;
+  stockThreshold?: number;
 
   @ApiProperty({ required: false, example: 1, default: 1 })
   @IsOptional()
