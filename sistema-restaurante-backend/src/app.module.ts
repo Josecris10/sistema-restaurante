@@ -10,10 +10,12 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { RecipesModule } from './modules/recipes/recipes.module';
 import { SuppliesModule } from './modules/supplies/supplies.module';
 import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { MenusModule } from './modules/menus/menus.module';
+import { SeedModule } from './modules/seed/seed.module';
 
 //Entities
 import { DailyProduction } from './modules/menus/entities/daily-production.entity';
-import { MenusModule } from './modules/menus/menus.module';
 import { Menu } from './modules/menus/entities/menu.entity';
 import { Table } from './modules/tables/entities/table.entity';
 import { RecipeMenu } from './modules/menus/entities/recipe-menu.entity';
@@ -25,7 +27,6 @@ import { RecipeSupply } from './modules/recipes/entities/recipe-supply.entity';
 import { Supply } from './modules/supplies/entities/supply.entity';
 import { SupplyBatch } from './modules/supplies/entities/supply-batch.entity';
 import { User } from './modules/users/entities/user.entity';
-import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { AuthModule } from './modules/auth/auth.module';
     SuppliesModule,
     UsersModule,
     AuthModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
