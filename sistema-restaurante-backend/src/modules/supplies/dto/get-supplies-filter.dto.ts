@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
-export class GetSuppliesFilterDto {
+export class GetSuppliesFilterDto extends PaginationDto {
   @ApiProperty({
     description: 'Buscar por nombre del insumo (coincidencia parcial)',
     required: false,
@@ -32,18 +33,4 @@ export class GetSuppliesFilterDto {
   @IsNumber()
   @Min(0)
   stockThreshold?: number;
-
-  @ApiProperty({ required: false, example: 1, default: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  page?: number = 1;
-
-  @ApiProperty({ required: false, example: 10, default: 10 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  limit?: number = 10;
 }

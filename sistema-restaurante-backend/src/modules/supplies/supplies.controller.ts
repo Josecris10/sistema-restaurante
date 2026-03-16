@@ -26,6 +26,8 @@ import { CreateSupplyBatchDto } from './dto/create-supply-batch.dto';
 import { CreateSupplyDto } from './dto/create-supply.dto';
 import { UpdateSupplyDto } from './dto/update-supply.dto';
 import { UpdateSupplyBatchDto } from './dto/update-supply-batch.dto';
+import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { SupplyDetailDto } from './dto/supply-detail.dto';
 
 @ApiTags('Supplies')
 @ApiBearerAuth()
@@ -37,38 +39,52 @@ export class SuppliesController {
   @Get()
   @ApiOperation({ summary: 'Listar insumos con stock calculado y filtros' })
   @ApiOkResponsePaginated(SupplyResponseDto)
-  async findAll(@Query() filterDto: GetSuppliesFilterDto) {
-    return await this.suppliesService.findAll(filterDto);
+  async findAll(
+    @Query() filters: GetSuppliesFilterDto,
+  ): Promise<BaseResponseDto<SupplyResponseDto>> {
+    const supplies = await this.suppliesService.findAll(filters);
+    return {
+      data: supplies.data,
+      total: supplies.total,
+    };
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener un insumo por su ID' })
   @ApiOkResponse({ type: SupplyResponseDto })
   @ApiNotFoundResponse({ description: 'El insumo con ese ID no existe' })
-  async findOne(@Param('id') id: string) {
-    return await this.suppliesService.findOne(+id);
+  async findOne(
+    @Param('id') id: string,
+  ): Promise<BaseResponseDto<SupplyDetailDto>> {
+    const supply = await this.suppliesService.findOne(+id);
+    return {
+      data: supply,
+    };
   }
 
   @Post('batches')
   @ApiOperation({ summary: 'Registrar la entrada de un nuevo lote de insumos' })
   @ApiCreatedResponse({ description: 'Lote registrado exitosamente' })
-  async createBatch(@Body() createBatchDto: CreateSupplyBatchDto) {
-    return await this.suppliesService.createBatch(createBatchDto);
+  async createBatch(@Body() batchData: CreateSupplyBatchDto) {
+    const data = await this.suppliesService.createBatch(batchData);
+    return { data: data };
   }
 
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo insumo base' })
-  async create(@Body() createSupplyDto: CreateSupplyDto) {
-    return await this.suppliesService.create(createSupplyDto);
+  async create(@Body() supplyData: CreateSupplyDto) {
+    const supply = await this.suppliesService.create(supplyData);
+    return { data: supply };
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar datos de un insumo' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateData: UpdateSupplyDto,
+    @Body() supplyData: UpdateSupplyDto,
   ) {
-    return await this.suppliesService.update(id, updateData);
+    const supply = await this.suppliesService.update(id, supplyData);
+    return { data: supply };
   }
 
   @Patch('batches/:id')
@@ -77,8 +93,9 @@ export class SuppliesController {
   })
   async updateBatch(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateBatchDto: UpdateSupplyBatchDto,
+    @Body() batchData: UpdateSupplyBatchDto,
   ) {
-    return await this.suppliesService.updateBatch(id, updateBatchDto);
+    const batch = await this.suppliesService.updateBatch(id, batchData);
+    return { data: batch };
   }
 }

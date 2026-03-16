@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class BaseResponseDto<T> {
-  @ApiProperty({
-    description: 'Total de registros encontrados',
-    example: 2,
-  })
-  total: number;
+  @ApiProperty({ description: 'Datos de la respuesta' })
   data: T | T[];
+
+  @ApiProperty({
+    description: 'Total real en base de datos (solo para listas paginadas)',
+    required: false,
+  })
+  total?: number;
 }

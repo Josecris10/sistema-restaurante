@@ -1,17 +1,141 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+
+import { SuppliesService } from '../supplies/supplies.service';
 
 import { Recipe } from './entities/recipe.entity';
 import { RecipeSupply } from './entities/recipe-supply.entity';
+import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { RecipeResponseDto } from './dto/recipe-response.dto';
+import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { paginate } from 'src/common/utils/pagination.util';
+import { GetRecipesFilterDto } from './dto/get-recipes-filter-dto';
 
 @Injectable()
 export class RecipesService {
   constructor(
     @InjectRepository(Recipe)
     private readonly recipeRepository: Repository<Recipe>,
+    private readonly suppliesService: SuppliesService,
+    private readonly dataSource: DataSource,
 
     @InjectRepository(RecipeSupply)
     private readonly recipeSupplyRepository: Repository<RecipeSupply>,
   ) {}
+
+  async create(recipeData: CreateRecipeDto): Promise<RecipeResponseDto> {
+    const { name, additionalInfo, ingredients } = recipeData;
+
+    const existingRecipe = await this.recipeRepository.findOne({
+      where: { name: name.trim() },
+    });
+    if (existingRecipe)
+      throw new ConflictException(
+        `La receta con el nombre "${name}" ya existe en el sistema.`,
+      );
+
+    const suppliesIds = [...new Set(ingredients.map((ing) => ing.supplyId))];
+    const validatedSupplies =
+      await this.suppliesService.validateSuppliesExist(suppliesIds);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const newRecipe = queryRunner.manager.create(Recipe, {
+        name: name,
+        additionalInfo: additionalInfo,
+      });
+
+      const savedRecipe = await queryRunner.manager.save(newRecipe);
+
+      const recipeSuppliesToSave = recipeData.ingredients.map((ingredient) => {
+        return queryRunner.manager.create(RecipeSupply, {
+          quantity: ingredient.quantity,
+          recipe: savedRecipe,
+          supply: { id: ingredient.supplyId },
+        });
+      });
+
+      await queryRunner.manager.save(recipeSuppliesToSave);
+      await queryRunner.commitTransaction();
+
+      return {
+        ...savedRecipe,
+        ingredients: recipeSuppliesToSave.map((recipeSupply) => {
+          const supplyInfo = validatedSupplies.find(
+            (s) => s.id === recipeSupply.supply.id,
+          );
+          return {
+            supplyName: supplyInfo?.name,
+            supplyId: recipeSupply.supply.id,
+            quantity: recipeSupply.quantity,
+          };
+        }),
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+
+      throw new InternalServerErrorException(
+        'Ocurrió un error al intentar guardar la receta y sus insumos',
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async findOne(id: number): Promise<RecipeResponseDto> {
+    const recipe = await this.recipeRepository.findOne({
+      where: { id },
+      relations: ['recipeSupplies', 'recipeSupplies.supply'],
+    });
+
+    if (!recipe)
+      throw new NotFoundException(`La receta con ID ${id} no existe`);
+
+    return {
+      id: recipe.id,
+      name: recipe.name,
+      additionalInfo: recipe.additionalInfo,
+      ingredients: recipe.recipeSupplies.map((recipeSupply) => ({
+        supplyName: recipeSupply.supply.name,
+        supplyId: Number(recipeSupply.supply.id),
+        quantity: Number(recipeSupply.quantity),
+      })),
+    };
+  }
+
+  async findAll(
+    filters: GetRecipesFilterDto,
+  ): Promise<PaginatedResult<RecipeResponseDto>> {
+    const { name, ingredientId } = filters;
+
+    const query = this.recipeRepository
+      .createQueryBuilder('recipe')
+      .select('recipe.id', 'id')
+      .addSelect('recipe.name', 'name');
+
+    if (ingredientId) {
+      query
+        .innerJoin('recipe.recipeSupplies', 'recipe_supply')
+        .andWhere('recipe_supply.supply_id = :ingredientId', { ingredientId })
+        .groupBy('recipe.id')
+        .addGroupBy('recipe.name');
+    }
+
+    if (name) {
+      query.andWhere('LOWER(recipe.name) LIKE LOWER(:name)', {
+        name: `%${name}%`,
+      });
+    }
+
+    return await paginate(query, filters);
+  }
 }

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { Item } from './entities/item.entity';
 import { ItemDetail } from './entities/item-detail.entity';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -18,4 +19,6 @@ export class OrdersService {
     @InjectRepository(ItemDetail)
     private readonly itemDetailRepository: Repository<ItemDetail>,
   ) {}
+
+  async create(orderData: CreateOrderDto) {}
 }

@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { Supply } from './entities/supply.entity';
 import { SupplyBatch } from './entities/supply-batch.entity';
@@ -16,6 +16,9 @@ import { CreateSupplyDto } from './dto/create-supply.dto';
 import { SupplyDetailDto } from './dto/supply-detail.dto';
 import { UpdateSupplyDto } from './dto/update-supply.dto';
 import { UpdateSupplyBatchDto } from './dto/update-supply-batch.dto';
+import { paginate } from 'src/common/utils/pagination.util';
+import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class SuppliesService {
@@ -28,10 +31,9 @@ export class SuppliesService {
   ) {}
 
   async findAll(
-    filterDto: GetSuppliesFilterDto,
-  ): Promise<{ data: SupplyResponseDto[]; total: number }> {
-    const { name, type, stockThreshold, page = 1, limit = 10 } = filterDto;
-    const skip = (page - 1) * limit;
+    filters: GetSuppliesFilterDto,
+  ): Promise<PaginatedResult<SupplyResponseDto>> {
+    const { name, type, stockThreshold } = filters;
 
     const query = this.supplyRepository
       .createQueryBuilder('supply')
@@ -62,21 +64,7 @@ export class SuppliesService {
       );
     }
 
-    const total = await query.getCount();
-
-    const rawResults = await query.limit(limit).offset(skip).getRawMany();
-
-    const data = rawResults.map((res) => ({
-      id: Number(res.id),
-      name: res.name,
-      type: res.type,
-      unitMeasurement: res.unitMeasurement,
-      minimumStock: Number(res.minimumStock),
-      totalStock: Number(res.totalStock),
-      isCritical: Number(res.totalStock) <= Number(res.minimumStock),
-    }));
-
-    return { data, total };
+    return await paginate(query, filters);
   }
 
   async findOne(id: number): Promise<SupplyDetailDto> {
@@ -85,9 +73,8 @@ export class SuppliesService {
       relations: ['supplyBatches'],
     });
 
-    if (!supply) {
+    if (!supply)
       throw new NotFoundException(`El insumo con ID ${id} no existe`);
-    }
 
     const totalStock = supply.supplyBatches.reduce(
       (acc, batch) => acc + Number(batch.remainingQuantity),
@@ -122,8 +109,8 @@ export class SuppliesService {
     };
   }
 
-  async createBatch(createBatchDto: CreateSupplyBatchDto) {
-    const { supplyId, ...batchData } = createBatchDto;
+  async createBatch(batchData: CreateSupplyBatchDto) {
+    const { supplyId, ...batchExtraData } = batchData;
 
     const supply = await this.supplyRepository.findOneBy({ id: supplyId });
 
@@ -134,7 +121,7 @@ export class SuppliesService {
     }
 
     const newBatch = this.supplyBatchRepository.create({
-      ...batchData,
+      ...batchExtraData,
       supply,
     });
 
@@ -150,8 +137,8 @@ export class SuppliesService {
     };
   }
 
-  async create(createSupplyDto: CreateSupplyDto) {
-    const { name } = createSupplyDto;
+  async create(supplyData: CreateSupplyDto) {
+    const { name } = supplyData;
 
     const existingSupply = await this.supplyRepository.findOne({
       where: { name: name.trim() },
@@ -163,7 +150,7 @@ export class SuppliesService {
       );
     }
 
-    const newSupply = this.supplyRepository.create(createSupplyDto);
+    const newSupply = this.supplyRepository.create(supplyData);
 
     return await this.supplyRepository.save(newSupply);
   }
@@ -222,5 +209,25 @@ export class SuppliesService {
       brand: updatedBatch.brand,
       costPrice: updatedBatch.costPrice,
     };
+  }
+
+  async validateSuppliesExist(ids: number[]): Promise<Supply[]> {
+    const uniqueIds = [...new Set(ids)];
+
+    const foundSupplies = await this.supplyRepository.find({
+      where: { id: In(uniqueIds) },
+      select: ['id', 'name'],
+    });
+
+    const foundIds = foundSupplies.map((s) => s.id);
+    const missingIds = ids.filter((id) => !foundIds.includes(id));
+
+    if (missingIds.length > 0) {
+      throw new BadRequestException({
+        message: 'Uno o más insumos proporcionados no existen en el sistema',
+        missingIds: missingIds,
+      });
+    }
+    return foundSupplies;
   }
 }
