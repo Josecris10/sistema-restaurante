@@ -16,6 +16,7 @@ import { RecipeResponseDto } from './dto/recipe-response.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 import { paginate } from 'src/common/utils/pagination.util';
 import { GetRecipesFilterDto } from './dto/get-recipes-filter-dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 
 @Injectable()
 export class RecipesService {
@@ -137,5 +138,83 @@ export class RecipesService {
     }
 
     return await paginate(query, filters);
+  }
+
+  async update(id: number, updateData: UpdateRecipeDto) {
+    const recipe = await this.recipeRepository.findOne({
+      where: { id },
+      relations: ['recipeSupplies'],
+    });
+
+    if (!recipe)
+      throw new NotFoundException(`Receta con id #${id} no encontrada`);
+
+    if (updateData.name) {
+      const duplicate = await this.recipeRepository.findOne({
+        where: { name: updateData.name?.trim() },
+      });
+
+      if (duplicate && duplicate.id !== id)
+        throw new ConflictException(
+          `Ya existe otra receta con el nombre "${updateData.name}"`,
+        );
+    }
+
+    if (updateData.ingredients && updateData.ingredients.length > 0) {
+      await Promise.all(
+        updateData.ingredients.map((ing) =>
+          this.suppliesService.findOne(ing.supplyId),
+        ),
+      );
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const updatedRecipe = queryRunner.manager.merge(Recipe, recipe, {
+        name: updateData.name,
+        additionalInfo: updateData.additionalInfo,
+      });
+      await queryRunner.manager.save(updatedRecipe);
+
+      if (updateData.ingredients) {
+        await queryRunner.manager.delete(RecipeSupply, { recipe: { id: id } });
+
+        if (updateData.ingredients.length > 0) {
+          const newRecipeSupplies = updateData.ingredients.map((ing) => {
+            return queryRunner.manager.create(RecipeSupply, {
+              recipe: { id: id },
+              supply: { id: ing.supplyId },
+              quantity: ing.quantity,
+            });
+          });
+
+          await queryRunner.manager.save(newRecipeSupplies);
+        }
+      }
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(
+        'Error al actualizar la receta y sus ingredientes',
+      );
+    } finally {
+      await queryRunner.release();
+    }
+
+    return await this.findOne(id);
+  }
+
+  async delete(id: number) {
+    const recipe = await this.recipeRepository.findOne({
+      where: { id },
+    });
+    if (!recipe)
+      throw new NotFoundException(`La receta con ID ${id} no existe`);
+
+    await this.recipeRepository.delete(id);
+    return { message: `La receta con ID #${id} fue eliminada correctamente ` };
   }
 }

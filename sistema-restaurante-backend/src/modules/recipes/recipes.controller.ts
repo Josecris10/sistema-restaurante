@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -21,6 +24,7 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { RecipeResponseDto } from './dto/recipe-response.dto';
 import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { GetRecipesFilterDto } from './dto/get-recipes-filter-dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 
 @ApiTags('Recipes')
 @ApiBearerAuth()
@@ -62,5 +66,25 @@ export class RecipesController {
       data: recipes.data,
       total: recipes.total,
     };
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Cambiar información de una recetea ',
+  })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateData: UpdateRecipeDto,
+  ) {
+    const recipe = await this.recipesService.update(id, updateData);
+    return { data: recipe };
+  }
+
+  @Delete(':id')
+  @ApiOperation({
+    summary: 'Elimina una receta',
+  })
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    return this.recipesService.delete(id);
   }
 }

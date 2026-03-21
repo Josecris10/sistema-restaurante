@@ -12,7 +12,9 @@ export class RecipeSupply extends BaseEntity {
   @JoinColumn({ name: 'supply_id' })
   supply: Supply;
 
-  @ManyToOne(() => Recipe, (recipe) => recipe.recipeSupplies)
+  @ManyToOne(() => Recipe, (recipe) => recipe.recipeSupplies, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'recipe_id' })
   recipe: Recipe;
 }
