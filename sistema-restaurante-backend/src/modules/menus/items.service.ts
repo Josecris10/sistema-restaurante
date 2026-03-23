@@ -6,12 +6,16 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { RecipeCreatedEvent } from '../recipes/events/recipe-created.event';
 import { ItemDto } from './dto/item.dto';
 import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { RecipesService } from '../recipes/recipes.service';
+import { SuppliesService } from '../supplies/supplies.service';
 
 @Injectable()
 export class ItemsService {
   constructor(
     @InjectRepository(Item)
     private readonly itemRepository: Repository<Item>,
+    private readonly recipesService: RecipesService,
+    private readonly suppliesService: SuppliesService,
   ) {}
 
   async validateItemsExist(ids: number[]): Promise<Item[]> {
@@ -34,7 +38,11 @@ export class ItemsService {
     return foundItems;
   }
 
-  async create(itemData: ItemDto): Promise<BaseResponseDto<ItemDto>> {}
+  async create(itemData: ItemDto): Promise<BaseResponseDto<ItemDto>> {
+    if (itemData.recipeId) {
+      this.recipesService.
+    }
+  }
 
   @OnEvent('recipe.created')
   handleRecipeCreatedEvent(payload: RecipeCreatedEvent) {
