@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 // Modules
 import { TablesModule } from './modules/tables/tables.module';
@@ -20,7 +21,7 @@ import { Menu } from './modules/menus/entities/menu.entity';
 import { Table } from './modules/tables/entities/table.entity';
 import { RecipeMenu } from './modules/menus/entities/recipe-menu.entity';
 import { Order } from './modules/orders/entities/order.entity';
-import { Item } from './modules/orders/entities/item.entity';
+import { Item } from './modules/menus/entities/item.entity';
 import { ItemDetail } from './modules/orders/entities/item-detail.entity';
 import { Recipe } from './modules/recipes/entities/recipe.entity';
 import { RecipeSupply } from './modules/recipes/entities/recipe-supply.entity';
@@ -33,6 +34,8 @@ import { User } from './modules/users/entities/user.entity';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
+    EventEmitterModule.forRoot(),
 
     TypeOrmModule.forRoot({
       type: 'postgres',

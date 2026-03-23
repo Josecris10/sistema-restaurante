@@ -3,7 +3,7 @@ import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 
 import { SupplyType } from '../enums/supply-type.enum';
 
-import { Item } from 'src/modules/orders/entities/item.entity';
+import { Item } from 'src/modules/menus/entities/item.entity';
 import { SupplyBatch } from './supply-batch.entity';
 import { RecipeSupply } from 'src/modules/recipes/entities/recipe-supply.entity';
 

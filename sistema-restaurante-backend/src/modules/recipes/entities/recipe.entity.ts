@@ -3,7 +3,7 @@ import { BaseEntity } from '../../../common/entities/base.entity';
 
 import { DailyProduction } from '../../menus/entities/daily-production.entity';
 import { RecipeMenu } from 'src/modules/menus/entities/recipe-menu.entity';
-import { Item } from 'src/modules/orders/entities/item.entity';
+import { Item } from 'src/modules/menus/entities/item.entity';
 import { RecipeSupply } from './recipe-supply.entity';
 
 @Entity('recipes')

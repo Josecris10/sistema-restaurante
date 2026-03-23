@@ -17,6 +17,8 @@ import { PaginatedResult } from 'src/common/interfaces/paginated-result.interfac
 import { paginate } from 'src/common/utils/pagination.util';
 import { GetRecipesFilterDto } from './dto/get-recipes-filter-dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { RecipeCreatedEvent } from './events/recipe-created.event';
 
 @Injectable()
 export class RecipesService {
@@ -28,6 +30,8 @@ export class RecipesService {
 
     @InjectRepository(RecipeSupply)
     private readonly recipeSupplyRepository: Repository<RecipeSupply>,
+
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async create(recipeData: CreateRecipeDto): Promise<RecipeResponseDto> {
@@ -67,6 +71,11 @@ export class RecipesService {
 
       await queryRunner.manager.save(recipeSuppliesToSave);
       await queryRunner.commitTransaction();
+
+      this.eventEmitter.emit(
+        'recipe.created',
+        new RecipeCreatedEvent(savedRecipe.id, savedRecipe.name),
+      );
 
       return {
         ...savedRecipe,

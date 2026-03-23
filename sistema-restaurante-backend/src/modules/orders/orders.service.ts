@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 
 import { Order } from './entities/order.entity';
-import { Item } from './entities/item.entity';
+import { Item } from '../menus/entities/item.entity';
 import { ItemDetail } from './entities/item-detail.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UsersService } from '../users/users.service';
@@ -18,6 +18,7 @@ import { TablesService } from '../tables/tables.service';
 import { TableStatus } from '../tables/enums/table-status.enum';
 import { Table } from '../tables/entities/table.entity';
 import { OrderResponseDto } from './dto/order-response.dto';
+import { ItemsService } from '../menus/items.service';
 
 @Injectable()
 export class OrdersService {
@@ -26,6 +27,7 @@ export class OrdersService {
     private readonly orderRepository: Repository<Order>,
     private readonly usersService: UsersService,
     private readonly tablesService: TablesService,
+    private readonly itemsService: ItemsService,
     private readonly dataSource: DataSource,
 
     @InjectRepository(Item)
@@ -34,26 +36,6 @@ export class OrdersService {
     @InjectRepository(ItemDetail)
     private readonly itemDetailRepository: Repository<ItemDetail>,
   ) {}
-
-  async validateItemsExist(ids: number[]): Promise<Item[]> {
-    const uniqueIds = [...new Set(ids)];
-
-    const foundItems = await this.itemRepository.find({
-      where: { id: In(uniqueIds) },
-      select: ['id', 'name', 'unitPrice'],
-    });
-
-    const foundIds = foundItems.map((i) => i.id);
-    const missingIds = ids.filter((id) => !foundIds.includes(id));
-
-    if (missingIds.length > 0)
-      throw new BadRequestException({
-        message: 'Uno o más items proporcionados no existen en el sistema',
-        missingIds: missingIds,
-      });
-
-    return foundItems;
-  }
 
   async create(orderData: CreateOrderDto): Promise<OrderResponseDto> {
     const { waiterId, tableId, itemDetails } = orderData;
@@ -66,7 +48,7 @@ export class OrdersService {
 
     const itemIds = [...new Set(itemDetails.map((item) => item.itemId))];
 
-    const validatedItems = await this.validateItemsExist(itemIds);
+    const validatedItems = await this.itemsService.validateItemsExist(itemIds);
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();

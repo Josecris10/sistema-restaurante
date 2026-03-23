@@ -8,17 +8,15 @@ export class ItemDto {
   name: string;
 
   @ApiProperty({ example: 1000 })
+  @IsOptional()
   @IsNumber()
-  @IsNotEmpty()
   unitPrice: number;
 
   @IsOptional()
   @IsNumber()
-  @IsEither('recipeId')
   supplyId?: number;
 
   @IsOptional()
   @IsNumber()
-  @IsEither('supplyId')
   recipeId?: number;
 }

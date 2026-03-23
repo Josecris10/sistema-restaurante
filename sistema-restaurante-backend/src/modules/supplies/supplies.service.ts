@@ -17,8 +17,9 @@ import { SupplyDetailDto } from './dto/supply-detail.dto';
 import { UpdateSupplyDto } from './dto/update-supply.dto';
 import { UpdateSupplyBatchDto } from './dto/update-supply-batch.dto';
 import { paginate } from 'src/common/utils/pagination.util';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { SupplyCreatedEvent } from './events/supply-created.event';
 
 @Injectable()
 export class SuppliesService {
@@ -28,6 +29,8 @@ export class SuppliesService {
 
     @InjectRepository(SupplyBatch)
     private readonly supplyBatchRepository: Repository<SupplyBatch>,
+
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(
@@ -152,7 +155,14 @@ export class SuppliesService {
 
     const newSupply = this.supplyRepository.create(supplyData);
 
-    return await this.supplyRepository.save(newSupply);
+    const savedSupply = await this.supplyRepository.save(newSupply);
+
+    this.eventEmitter.emit(
+      'supply.created',
+      new SupplyCreatedEvent(savedSupply.id, savedSupply.name),
+    );
+
+    return savedSupply;
   }
 
   async update(id: number, updateData: UpdateSupplyDto) {
