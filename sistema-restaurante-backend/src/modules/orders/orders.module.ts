@@ -8,9 +8,16 @@ import { Order } from './entities/order.entity';
 import { Item } from './entities/item.entity';
 import { ItemDetail } from './entities/item-detail.entity';
 import { AuthModule } from '../auth/auth.module';
+import { UsersModule } from '../users/users.module';
+import { TablesModule } from '../tables/tables.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Item, ItemDetail]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Order, Item, ItemDetail]),
+    AuthModule,
+    UsersModule,
+    TablesModule,
+  ],
   controllers: [OrdersController],
   providers: [OrdersService],
   exports: [OrdersService],

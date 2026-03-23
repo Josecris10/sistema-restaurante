@@ -15,11 +15,11 @@ export class ItemDetail extends BaseEntity {
   @Column({
     name: 'actual_price',
     type: 'int',
-    nullable: false,
+    nullable: true,
   })
   actualPrice: number;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   detail: string;
 
   @ManyToOne(() => Order, (order) => order.itemDetails)
@@ -27,6 +27,6 @@ export class ItemDetail extends BaseEntity {
   order: Order;
 
   @ManyToOne(() => Item, (item) => item.itemDetails)
-  @JoinColumn({ name: 'item_id ' })
+  @JoinColumn({ name: 'item_id' })
   item: Item;
 }

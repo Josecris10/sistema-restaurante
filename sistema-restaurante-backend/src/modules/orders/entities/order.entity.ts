@@ -27,8 +27,8 @@ export class Order extends BaseEntity {
   @Column({ name: 'client_name', type: 'varchar', length: 100 })
   clientName: string;
 
-  @Column({ name: 'closed_at', type: 'timestamptz' })
-  closedAt: Date;
+  @Column({ name: 'closed_at', type: 'timestamptz', nullable: true })
+  closedAt?: Date;
 
   @ManyToOne(() => Table, (table) => table.orders)
   @JoinColumn({ name: 'table_id' })

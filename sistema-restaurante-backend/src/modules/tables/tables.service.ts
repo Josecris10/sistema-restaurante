@@ -26,6 +26,7 @@ export class TablesService {
         id: table.id,
         number: table.number,
         ubication: table.ubication,
+        state: table.state,
       };
     });
   }
@@ -40,6 +41,21 @@ export class TablesService {
       id: table.id,
       number: table.number,
       ubication: table.ubication,
+      state: table.state,
+    };
+  }
+
+  async delete(id: number) {
+    const table = await this.findOne(id);
+
+    if (!table) {
+      throw new NotFoundException(`La mesa con ID ${id} no existe`);
+    }
+
+    this.tableRepository.delete(id);
+
+    return {
+      message: `La mesa #${table.number} se ha eliminado correctamente.`,
     };
   }
 }
