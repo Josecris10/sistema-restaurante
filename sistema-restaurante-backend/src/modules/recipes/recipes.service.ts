@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 
 import { SuppliesService } from '../supplies/supplies.service';
 
@@ -225,5 +226,25 @@ export class RecipesService {
 
     await this.recipeRepository.delete(id);
     return { message: `La receta con ID #${id} fue eliminada correctamente ` };
+  }
+
+  async validateRecipesExist(ids: number[]): Promise<Recipe[]> {
+    const uniqueIds = [...new Set(ids)];
+
+    const foundRecipes = await this.recipeRepository.find({
+      where: { id: In(uniqueIds) },
+      select: ['id', 'name'],
+    });
+
+    const foundIds = foundRecipes.map((i) => i.id);
+    const missingIds = ids.filter((id) => !foundIds.includes(id));
+
+    if (missingIds.length > 0)
+      throw new BadRequestException({
+        message: 'Una o más recetas proporcionados no existen en el sistema',
+        missingIds: missingIds,
+      });
+
+    return foundRecipes;
   }
 }

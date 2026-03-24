@@ -9,11 +9,13 @@ import { ItemDetail } from './entities/item-detail.entity';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { TablesModule } from '../tables/tables.module';
+import { MenusModule } from '../menus/menus.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, ItemDetail]),
     AuthModule,
+    MenusModule,
     UsersModule,
     TablesModule,
   ],

@@ -20,6 +20,8 @@ import { paginate } from 'src/common/utils/pagination.util';
 import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SupplyCreatedEvent } from './events/supply-created.event';
+import { SupplyType } from './enums/supply-type.enum';
+import { SupplyEvents } from 'src/common/enums/events.enum';
 
 @Injectable()
 export class SuppliesService {
@@ -157,10 +159,12 @@ export class SuppliesService {
 
     const savedSupply = await this.supplyRepository.save(newSupply);
 
-    this.eventEmitter.emit(
-      'supply.created',
-      new SupplyCreatedEvent(savedSupply.id, savedSupply.name),
-    );
+    if (savedSupply.type === SupplyType.PRODUCT) {
+      this.eventEmitter.emit(
+        SupplyEvents.PRODUCT_CREATED,
+        new SupplyCreatedEvent(savedSupply.id, savedSupply.name),
+      );
+    }
 
     return savedSupply;
   }

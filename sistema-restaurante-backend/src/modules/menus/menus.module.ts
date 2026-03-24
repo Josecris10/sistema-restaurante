@@ -6,14 +6,20 @@ import { Menu } from './entities/menu.entity';
 import { RecipeMenu } from './entities/recipe-menu.entity';
 import { DailyProduction } from './entities/daily-production.entity';
 import { AuthModule } from '../auth/auth.module';
+import { Item } from './entities/item.entity';
+import { ItemsService } from './items.service';
+import { RecipesModule } from '../recipes/recipes.module';
+import { SuppliesModule } from '../supplies/supplies.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Menu, RecipeMenu, DailyProduction]),
+    TypeOrmModule.forFeature([Item, Menu, RecipeMenu, DailyProduction]),
     AuthModule,
+    RecipesModule,
+    SuppliesModule,
   ],
   controllers: [MenusController],
-  providers: [MenusService],
-  exports: [MenusService],
+  providers: [MenusService, ItemsService],
+  exports: [MenusService, ItemsService, TypeOrmModule],
 })
 export class MenusModule {}

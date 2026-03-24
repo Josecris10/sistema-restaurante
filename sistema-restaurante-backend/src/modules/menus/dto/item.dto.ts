@@ -10,7 +10,7 @@ export class ItemDto {
   @ApiProperty({ example: 1000 })
   @IsOptional()
   @IsNumber()
-  unitPrice: number;
+  unitPrice?: number;
 
   @IsOptional()
   @IsNumber()
