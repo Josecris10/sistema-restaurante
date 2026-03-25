@@ -19,6 +19,8 @@ import { TableStatus } from '../tables/enums/table-status.enum';
 import { Table } from '../tables/entities/table.entity';
 import { OrderResponseDto } from './dto/order-response.dto';
 import { ItemsService } from '../menus/items.service';
+import { AddItemDetailsDto } from './dto/add-item-details.dto.ts';
+import { ItemDetailDto } from './dto/item-detail.dto';
 
 @Injectable()
 export class OrdersService {
@@ -110,5 +112,27 @@ export class OrdersService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async validateOrderExists(id: number) {
+    try {
+      await this.orderRepository.findOneOrFail({
+        where: { id },
+      });
+      return;
+    } catch (error) {
+      throw new NotFoundException(
+        `No se ha encontrado una orden con el ID#${id}`,
+      );
+    }
+  }
+
+  async addItemDetails(
+    id: number,
+    itemDetails: AddItemDetailsDto,
+  ): Promise<ItemDetailDto[]> {
+    const order = await this.validateOrderExists(id);
+
+    return [];
   }
 }
