@@ -114,15 +114,34 @@ export class OrdersService {
     }
   }
 
-  async validateOrderExists(id: number) {
+  async findOne(id: number): Promise<OrderResponseDto> {
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['itemDetails', 'table', 'waiter'],
+    });
+    if (!order)
+      throw new NotFoundException(
+        `No se ha encontrado una orden con el ID #${id}`,
+      );
+    return {
+      ...order,
+      detail: {
+        ...order.itemDetails,
+        itemName: order.itemDetails.map((item) => item.item.name),
+      },
+      tableId: order.table.id,
+      waiterId: order.table.id,
+    };
+  }
+
+  async validateOrderExists(id: number): Promise<Order> {
     try {
-      await this.orderRepository.findOneOrFail({
+      return await this.orderRepository.findOneOrFail({
         where: { id },
       });
-      return;
     } catch (error) {
       throw new NotFoundException(
-        `No se ha encontrado una orden con el ID#${id}`,
+        `No se ha encontrado una orden con el ID #${id}`,
       );
     }
   }
