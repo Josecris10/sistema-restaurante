@@ -26,7 +26,7 @@ import { ItemDetailDto } from './dto/item-detail.dto';
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
+    private readonly ordersRepository: Repository<Order>,
     private readonly usersService: UsersService,
     private readonly tablesService: TablesService,
     private readonly itemsService: ItemsService,
@@ -115,28 +115,51 @@ export class OrdersService {
   }
 
   async findOne(id: number): Promise<OrderResponseDto> {
-    const order = await this.orderRepository.findOne({
+    const order = await this.ordersRepository.findOne({
       where: { id },
-      relations: ['itemDetails', 'table', 'waiter'],
+      relations: { itemDetails: { item: true }, table: true, waiter: true },
+      select: {
+        id: true,
+        clientName: true,
+        kitchenState: true,
+        orderState: true,
+        closedAt: true,
+        table: { id: true },
+        waiter: { id: true },
+        itemDetails: {
+          id: true,
+          quantity: true,
+          actualPrice: true,
+          detail: true,
+          item: { id: true, name: true },
+        },
+      },
     });
     if (!order)
       throw new NotFoundException(
         `No se ha encontrado una orden con el ID #${id}`,
       );
     return {
-      ...order,
-      detail: {
-        ...order.itemDetails,
-        itemName: order.itemDetails.map((item) => item.item.name),
-      },
+      id: order.id,
+      clientName: order.clientName,
+      kitchenState: order.kitchenState,
+      orderState: order.orderState,
+      closedAt: order.closedAt,
+
+      detail: order.itemDetails.map((item) => ({
+        itemName: item.item.name,
+        quantity: item.quantity,
+        actualPrice: item.actualPrice,
+        detail: item.detail,
+      })),
       tableId: order.table.id,
-      waiterId: order.table.id,
+      waiterId: order.waiter.id,
     };
   }
 
   async validateOrderExists(id: number): Promise<Order> {
     try {
-      return await this.orderRepository.findOneOrFail({
+      return await this.ordersRepository.findOneOrFail({
         where: { id },
       });
     } catch (error) {
@@ -147,11 +170,28 @@ export class OrdersService {
   }
 
   async addItemDetails(
+    //Pendiente de correción
     id: number,
     itemDetails: AddItemDetailsDto,
   ): Promise<ItemDetailDto[]> {
-    const order = await this.validateOrderExists(id);
+    const order = await this.ordersRepository.findOneBy({ id });
 
-    return [];
+    if (!order)
+      throw new NotFoundException(
+        `No se ha encontrado la orden con el ID #${id}`,
+      );
+
+    const updatedOrder = this.ordersRepository.merge(order, {
+      itemDetails: itemDetails.items,
+    });
+
+    const savedOrder = await this.ordersRepository.save(updatedOrder);
+
+    return savedOrder.itemDetails.map((it) => ({
+      quantity: it.quantity,
+      actualPrice: it.actualPrice,
+      detail: it.detail,
+      itemId: it.item.id,
+    }));
   }
 }

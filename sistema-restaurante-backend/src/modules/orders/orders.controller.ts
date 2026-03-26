@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Patch,
@@ -40,12 +41,19 @@ export class OrdersController {
     @Body() orderData: CreateOrderDto,
   ): Promise<BaseResponseDto<OrderResponseDto>> {
     const order = await this.ordersService.create(orderData);
-    return {
-      data: order,
-    };
+    return { data: order };
   }
 
-  @Post('/:id/item-details')
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Obtener una orden',
+  })
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const order = await this.ordersService.findOne(id);
+    return { data: order };
+  }
+
+  @Post(':id/item-details')
   @ApiOperation({
     summary: 'Añadir más items a la orden',
   })
@@ -60,7 +68,7 @@ export class OrdersController {
     };
   }
 
-  @Patch('/:id/kitchen-state')
+  @Patch(':id/kitchen-state')
   @ApiOperation({
     summary: 'Actualizar el estado de cocina de una orden',
   })
@@ -69,7 +77,7 @@ export class OrdersController {
     @Body() newKitchenState: UpdateKitchenStateDto,
   ) {}
 
-  @Patch('/:id/order-state')
+  @Patch(':id/order-state')
   @ApiOperation({
     summary: 'Actualizar el estado de la orden',
   })
@@ -78,13 +86,13 @@ export class OrdersController {
     @Body() newOrderState: UpdateOrderStateDto,
   ) {}
 
-  @Post('/:id/cancel')
+  @Post(':id/cancel')
   @ApiOperation({
     summary: 'Cancelar la orden',
   })
   async cancelOrder(@Param('id', ParseIntPipe) id: number) {}
 
-  @Post('/:id/close')
+  @Post(':id/close')
   @ApiOperation({
     summary: 'Cerrar la orden',
   })
