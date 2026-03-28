@@ -2,6 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ItemDetailDto {
+  @ApiProperty({ example: 'Coca cola zero 550CC' })
+  @IsString()
+  @IsOptional()
+  name: string;
+
   @ApiProperty({ example: 2 })
   @IsNumber()
   @IsNotEmpty()
@@ -18,6 +23,6 @@ export class ItemDetailDto {
   detail?: string;
 
   @IsNumber()
-  @IsNotEmpty()
-  itemId: number;
+  @IsOptional()
+  itemId?: number;
 }

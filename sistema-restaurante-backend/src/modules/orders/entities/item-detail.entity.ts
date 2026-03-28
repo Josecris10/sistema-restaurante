@@ -7,6 +7,13 @@ import { Item } from '../../menus/entities/item.entity';
 @Entity('item_details')
 export class ItemDetail extends BaseEntity {
   @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
+  name: string;
+
+  @Column({
     type: 'int',
     nullable: false,
   })
@@ -26,7 +33,7 @@ export class ItemDetail extends BaseEntity {
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @ManyToOne(() => Item, (item) => item.itemDetails)
+  @ManyToOne(() => Item, (item) => item.itemDetails, { nullable: true })
   @JoinColumn({ name: 'item_id' })
-  item: Item;
+  item?: Item;
 }

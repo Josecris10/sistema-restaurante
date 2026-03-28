@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OrderState } from '../enums/order-state.enum';
-import { IsEnum } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
+import { Timestamp } from 'typeorm';
 
 export class OrderDetailResponseDto {
   @ApiProperty({ example: 'Lomo a lo Pobre' })
-  itemName: string;
+  name: string;
 
   @ApiProperty({ example: 2 })
   quantity: number;
@@ -37,4 +38,8 @@ export class OrderResponseDto {
 
   @ApiProperty({ type: [OrderDetailResponseDto] })
   detail: OrderDetailResponseDto[];
+
+  @ApiProperty({ type: Timestamp })
+  @IsOptional()
+  closedAt?: Date;
 }
