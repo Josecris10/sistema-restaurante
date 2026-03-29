@@ -6,7 +6,7 @@ import { RecipeMenu } from './entities/recipe-menu.entity';
 import { DailyProduction } from './entities/daily-production.entity';
 
 @Injectable()
-export class MenusService {
+export class CatalogService {
   constructor(
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,

@@ -5,10 +5,9 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { Order } from './entities/order.entity';
 import { ItemDetail } from './entities/item-detail.entity';
@@ -18,7 +17,7 @@ import { TablesService } from '../tables/tables.service';
 import { TableStatus } from '../tables/enums/table-status.enum';
 import { Table } from '../tables/entities/table.entity';
 import { OrderResponseDto } from './dto/order-response.dto';
-import { ItemsService } from '../menus/items.service';
+import { ItemsService } from '../catalog/items.service';
 import { AddItemDetailsDto } from './dto/add-item-details.dto.ts';
 import { ItemDetailDto } from './dto/item-detail.dto';
 import { UpdateKitchenStateDto } from './dto/update-kitchen-state.dto';

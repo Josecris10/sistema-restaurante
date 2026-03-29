@@ -12,16 +12,16 @@ import { RecipesModule } from './modules/recipes/recipes.module';
 import { SuppliesModule } from './modules/supplies/supplies.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { MenusModule } from './modules/menus/menus.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
 import { SeedModule } from './modules/seed/seed.module';
 
 //Entities
-import { DailyProduction } from './modules/menus/entities/daily-production.entity';
-import { Menu } from './modules/menus/entities/menu.entity';
+import { DailyProduction } from './modules/catalog/entities/daily-production.entity';
+import { Menu } from './modules/catalog/entities/menu.entity';
 import { Table } from './modules/tables/entities/table.entity';
-import { RecipeMenu } from './modules/menus/entities/recipe-menu.entity';
+import { RecipeMenu } from './modules/catalog/entities/recipe-menu.entity';
 import { Order } from './modules/orders/entities/order.entity';
-import { Item } from './modules/menus/entities/item.entity';
+import { Item } from './modules/catalog/entities/item.entity';
 import { ItemDetail } from './modules/orders/entities/item-detail.entity';
 import { Recipe } from './modules/recipes/entities/recipe.entity';
 import { RecipeSupply } from './modules/recipes/entities/recipe-supply.entity';
@@ -64,7 +64,7 @@ import { User } from './modules/users/entities/user.entity';
         User,
       ],
     }),
-    MenusModule,
+    CatalogModule,
     OrdersModule,
     TablesModule,
     RecipesModule,

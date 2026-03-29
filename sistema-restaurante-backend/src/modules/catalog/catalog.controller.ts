@@ -1,14 +1,14 @@
 import { Controller, Post, UseGuards } from '@nestjs/common';
-import { MenusService } from './menus.service';
+import { CatalogService } from './catalog.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@ApiTags('Menus')
+@ApiTags('Catalog')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('menus')
-export class MenusController {
-  constructor(private readonly menusService: MenusService) {}
+@Controller('catalog')
+export class CatalogController {
+  constructor(private readonly catalogService: CatalogService) {}
 
   @Post()
   create() {

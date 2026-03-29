@@ -2,7 +2,7 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { Order } from './order.entity';
-import { Item } from '../../menus/entities/item.entity';
+import { Item } from '../../catalog/entities/item.entity';
 
 @Entity('item_details')
 export class ItemDetail extends BaseEntity {

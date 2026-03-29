@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MenusService } from './menus.service';
-import { MenusController } from './menus.controller';
+import { CatalogService } from './catalog.service';
+import { CatalogController } from './catalog.controller';
 import { Menu } from './entities/menu.entity';
 import { RecipeMenu } from './entities/recipe-menu.entity';
 import { DailyProduction } from './entities/daily-production.entity';
@@ -18,8 +18,8 @@ import { SuppliesModule } from '../supplies/supplies.module';
     RecipesModule,
     SuppliesModule,
   ],
-  controllers: [MenusController],
-  providers: [MenusService, ItemsService],
-  exports: [MenusService, ItemsService, TypeOrmModule],
+  controllers: [CatalogController],
+  providers: [CatalogService, ItemsService],
+  exports: [CatalogService, ItemsService, TypeOrmModule],
 })
-export class MenusModule {}
+export class CatalogModule {}
