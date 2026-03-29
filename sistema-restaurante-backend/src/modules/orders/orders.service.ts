@@ -21,6 +21,11 @@ import { OrderResponseDto } from './dto/order-response.dto';
 import { ItemsService } from '../menus/items.service';
 import { AddItemDetailsDto } from './dto/add-item-details.dto.ts';
 import { ItemDetailDto } from './dto/item-detail.dto';
+import { UpdateKitchenStateDto } from './dto/update-kitchen-state.dto';
+import { KitchenState, KITCHEN_WORKFLOW } from './enums/kitchen-state.enum';
+import { UpdateOrderStateDto } from './dto/update-order-state.dto';
+import { ORDER_WORKFLOW, OrderState } from './enums/order-state.enum';
+import { UpdateItemDetailDto } from './dto/update-item-detail.dto';
 
 @Injectable()
 export class OrdersService {
@@ -189,6 +194,7 @@ export class OrdersService {
     try {
       return await this.ordersRepository.findOneOrFail({
         where: { id },
+        relations: ['table', 'waiter'],
       });
     } catch (error) {
       throw new NotFoundException(
@@ -219,5 +225,220 @@ export class OrdersService {
       detail: it.detail,
       itemId: it.item?.id,
     }));
+  }
+
+  async updateItemDetail(
+    id: number,
+    detailId: number,
+    itemDetail: UpdateItemDetailDto,
+  ): Promise<Partial<ItemDetailDto>> {
+    await this.validateOrderExists(id);
+
+    const detail = await this.itemDetailRepository.findOne({
+      where: {
+        id: detailId,
+        order: { id: id },
+      },
+    });
+
+    if (!detail) {
+      throw new NotFoundException(
+        'No se encontró el detalle especificado para esta orden',
+      );
+    }
+
+    if (itemDetail.newQuantity === 0) {
+      await this.itemDetailRepository.delete(detail.id);
+      return {
+        name: detail.name,
+        quantity: 0,
+      };
+    }
+
+    detail.quantity = itemDetail.newQuantity;
+    const savedDetail = await this.itemDetailRepository.save(detail);
+
+    return {
+      name: savedDetail.name,
+      quantity: savedDetail.quantity,
+      actualPrice: savedDetail.actualPrice,
+      detail: savedDetail.detail,
+    };
+  }
+
+  async updateKitchenState(id: number, newKitchenState: UpdateKitchenStateDto) {
+    const order = await this.validateOrderExists(id);
+
+    if (order.kitchenState === newKitchenState.newState) return;
+
+    // Máquina de estados
+    const allowedTransitions = KITCHEN_WORKFLOW[order.kitchenState];
+    if (!allowedTransitions.includes(newKitchenState.newState)) {
+      throw new BadRequestException(
+        `Transición no permitida, no se puede pasar de ${order.kitchenState} a ${newKitchenState.newState}`,
+      );
+    }
+    order.kitchenState = newKitchenState.newState;
+
+    const savedOrder = await this.ordersRepository.save(order);
+    return {
+      id: savedOrder.id,
+      kitchenState: savedOrder.kitchenState,
+      orderState: savedOrder.orderState,
+      clientName: savedOrder.clientName,
+      table: {
+        id: savedOrder.table.number,
+        number: savedOrder.table.number,
+      },
+      waiter: {
+        id: savedOrder.waiter.id,
+        name: `${savedOrder.waiter.firstName} ${savedOrder.waiter.lastName}`,
+      },
+    };
+  }
+
+  async updateOrderState(id: number, newOrderState: UpdateOrderStateDto) {
+    const order = await this.validateOrderExists(id);
+
+    if (order.orderState === newOrderState.newState) return;
+
+    // Máquina de estados
+    const allowedTransitions = ORDER_WORKFLOW[order.orderState];
+    if (!allowedTransitions.includes(newOrderState.newState)) {
+      throw new BadRequestException(
+        `Transición no permitida, no se puede pasar de ${order.orderState} a ${newOrderState.newState}`,
+      );
+    }
+
+    if (newOrderState.newState === OrderState.PAID) {
+      console.log('Emitiendo boleta (...)');
+      // emitRecipe()
+    }
+    order.orderState = newOrderState.newState;
+
+    const savedOrder = await this.ordersRepository.save(order);
+    return {
+      id: savedOrder.id,
+      kitchenState: savedOrder.kitchenState,
+      orderState: savedOrder.orderState,
+      clientName: savedOrder.clientName,
+      table: {
+        id: savedOrder.table.number,
+        number: savedOrder.table.number,
+      },
+      waiter: {
+        id: savedOrder.waiter.id,
+        name: `${savedOrder.waiter.firstName} ${savedOrder.waiter.lastName}`,
+      },
+    };
+  }
+
+  async cancelOrder(id: number) {
+    const order = await this.validateOrderExists(id);
+
+    const allowedOrderTransitions = ORDER_WORKFLOW[order.orderState];
+    const allowedKitchenTransitions = KITCHEN_WORKFLOW[order.kitchenState];
+    if (!allowedOrderTransitions.includes(OrderState.CANCELLED)) {
+      throw new BadRequestException(
+        `Transición no permitida, no se puede pasar de ${order.orderState} a ${OrderState.CANCELLED}`,
+      );
+    }
+    if (!allowedKitchenTransitions.includes(KitchenState.CANCELLED)) {
+      throw new BadRequestException(
+        `Transición no permitida, no se puede pasar de ${order.kitchenState} a ${KitchenState.CANCELLED}`,
+      );
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await this.tablesService.releaseTable(
+        order.table.id,
+        queryRunner.manager,
+      );
+
+      order.orderState = OrderState.CANCELLED;
+      order.kitchenState = KitchenState.CANCELLED;
+
+      const savedOrder = await queryRunner.manager.save(order);
+      await queryRunner.commitTransaction();
+      return {
+        id: savedOrder.id,
+        kitchenState: savedOrder.kitchenState,
+        orderState: savedOrder.orderState,
+        clientName: savedOrder.clientName,
+        table: {
+          id: savedOrder.table.number,
+          number: savedOrder.table.number,
+        },
+        waiter: {
+          id: savedOrder.waiter.id,
+          name: `${savedOrder.waiter.firstName} ${savedOrder.waiter.lastName}`,
+        },
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      else
+        throw new InternalServerErrorException(
+          'Ocurrió un error al intentar registrar la orden',
+        );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async closeOrder(id: number) {
+    const order = await this.validateOrderExists(id);
+
+    const allowedOrderTransitions = ORDER_WORKFLOW[order.orderState];
+    if (!allowedOrderTransitions.includes(OrderState.CLOSED)) {
+      throw new BadRequestException(
+        `Transición no permitida, no se puede pasar de ${order.orderState} a ${OrderState.CLOSED}`,
+      );
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Liberar mesa
+      await this.tablesService.releaseTable(
+        order.table.id,
+        queryRunner.manager,
+      );
+
+      // Cerramos la orden
+      order.orderState = OrderState.CLOSED;
+
+      const savedOrder = await queryRunner.manager.save(order);
+      await queryRunner.commitTransaction();
+      return {
+        id: savedOrder.id,
+        kitchenState: savedOrder.kitchenState,
+        orderState: savedOrder.orderState,
+        clientName: savedOrder.clientName,
+        table: {
+          id: savedOrder.table.number,
+          number: savedOrder.table.number,
+        },
+        waiter: {
+          id: savedOrder.waiter.id,
+          name: `${savedOrder.waiter.firstName} ${savedOrder.waiter.lastName}`,
+        },
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      else
+        throw new InternalServerErrorException(
+          'Ocurrió un error al intentar cerrar la orden',
+        );
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

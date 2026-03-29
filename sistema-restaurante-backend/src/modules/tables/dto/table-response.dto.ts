@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
 import { TableStatus } from '../enums/table-status.enum';
+import { TableUbication } from '../enums/table-ubication.enum';
 
 export class TableResponseDto {
   @ApiProperty({ example: 1 })
@@ -10,7 +11,7 @@ export class TableResponseDto {
   number: number;
 
   @ApiProperty({ example: 'INSIDE' })
-  ubication: string;
+  ubication: TableUbication;
 
   @ApiProperty({ example: 'OCCUPIED' })
   @IsEnum(TableStatus)

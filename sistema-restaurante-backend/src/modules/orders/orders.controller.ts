@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -24,6 +25,8 @@ import { AddItemDetailsDto } from './dto/add-item-details.dto.ts';
 import { UpdateKitchenStateDto } from './dto/update-kitchen-state.dto';
 import { UpdateOrderStateDto } from './dto/update-order-state.dto';
 import { Order } from './entities/order.entity';
+import { ItemDetailDto } from './dto/item-detail.dto';
+import { UpdateItemDetailDto } from './dto/update-item-detail.dto';
 
 @ApiTags('Supplies')
 @ApiBearerAuth()
@@ -68,6 +71,20 @@ export class OrdersController {
     };
   }
 
+  @Patch(':id/item-details/:detailId')
+  @ApiOperation({
+    summary: 'Modificar la canitdad de un item en la orden',
+  })
+  async updateItemDetails(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('detailId', ParseIntPipe) detailId: number,
+    @Body() itemDetail: UpdateItemDetailDto,
+  ) {
+    return {
+      data: await this.ordersService.updateItemDetail(id, detailId, itemDetail),
+    };
+  }
+
   @Patch(':id/kitchen-state')
   @ApiOperation({
     summary: 'Actualizar el estado de cocina de una orden',
@@ -75,7 +92,11 @@ export class OrdersController {
   async updateKitchenState(
     @Param('id', ParseIntPipe) id: number,
     @Body() newKitchenState: UpdateKitchenStateDto,
-  ) {}
+  ) {
+    return {
+      data: await this.ordersService.updateKitchenState(id, newKitchenState),
+    };
+  }
 
   @Patch(':id/order-state')
   @ApiOperation({
@@ -84,17 +105,29 @@ export class OrdersController {
   async updateOrderState(
     @Param('id', ParseIntPipe) id: number,
     @Body() newOrderState: UpdateOrderStateDto,
-  ) {}
+  ) {
+    return {
+      data: await this.ordersService.updateOrderState(id, newOrderState),
+    };
+  }
 
   @Post(':id/cancel')
   @ApiOperation({
     summary: 'Cancelar la orden',
   })
-  async cancelOrder(@Param('id', ParseIntPipe) id: number) {}
+  async cancelOrder(@Param('id', ParseIntPipe) id: number) {
+    return {
+      data: await this.ordersService.cancelOrder(id),
+    };
+  }
 
   @Post(':id/close')
   @ApiOperation({
     summary: 'Cerrar la orden',
   })
-  async closeOrder(@Param('id', ParseIntPipe) id: number) {}
+  async closeOrder(@Param('id', ParseIntPipe) id: number) {
+    return {
+      data: await this.ordersService.closeOrder(id),
+    };
+  }
 }

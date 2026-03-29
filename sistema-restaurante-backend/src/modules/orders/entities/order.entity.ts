@@ -22,7 +22,7 @@ export class Order extends BaseEntity {
     enum: OrderState,
     default: OrderState.RECEIVED,
   })
-  orderState: KitchenState;
+  orderState: OrderState;
 
   @Column({ name: 'client_name', type: 'varchar', length: 100 })
   clientName: string;
