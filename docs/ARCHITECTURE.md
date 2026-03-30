@@ -119,6 +119,10 @@ SUPPLY ||--o{ SUPPLY_BATCH:"has lots of"
     MENU {
       int id PK
       string name
+      bool is_template
+      int base_price
+      int combo_price
+      int parent_id FK
     }
 
     RECIPE_MENU {
