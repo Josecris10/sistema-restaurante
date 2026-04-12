@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 export class GetSuppliesFilterDto extends PaginationDto {
   @ApiProperty({
     description: 'Buscar por nombre del insumo (coincidencia parcial)',

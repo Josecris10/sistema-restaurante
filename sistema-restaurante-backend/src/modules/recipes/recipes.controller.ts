@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { RecipeResponseDto } from './dto/recipe-response.dto';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { BaseResponseDto } from '../../common/dto/base-response.dto';
 import { GetRecipesFilterDto } from './dto/get-recipes-filter-dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 

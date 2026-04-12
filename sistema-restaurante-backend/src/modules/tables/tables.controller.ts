@@ -12,10 +12,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateTableDto } from './dto/create-table.dto';
-import { Entity } from 'typeorm';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { BaseResponseDto } from '../../common/dto/base-response.dto';
 import { Table } from './entities/table.entity';
-import { ApiOkResponsePaginated } from 'src/common/decorators/api-response.decorator';
+import { ApiOkResponsePaginated } from '../../common/decorators/api-response.decorator';
 import { TableResponseDto } from './dto/table-response.dto';
 
 @ApiTags('Tables')

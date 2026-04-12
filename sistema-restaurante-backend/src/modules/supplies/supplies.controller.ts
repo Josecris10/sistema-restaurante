@@ -19,14 +19,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiOkResponsePaginated } from 'src/common/decorators/api-response.decorator';
+import { ApiOkResponsePaginated } from '../../common/decorators/api-response.decorator';
 import { SupplyResponseDto } from './dto/supply-response.dto';
 import { GetSuppliesFilterDto } from './dto/get-supplies-filter.dto';
 import { CreateSupplyBatchDto } from './dto/create-supply-batch.dto';
 import { CreateSupplyDto } from './dto/create-supply.dto';
 import { UpdateSupplyDto } from './dto/update-supply.dto';
 import { UpdateSupplyBatchDto } from './dto/update-supply-batch.dto';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { BaseResponseDto } from '../../common/dto/base-response.dto';
 import { SupplyDetailDto } from './dto/supply-detail.dto';
 
 @ApiTags('Supplies')

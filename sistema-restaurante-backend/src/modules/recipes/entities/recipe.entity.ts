@@ -2,8 +2,8 @@ import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 
 import { DailyProduction } from '../../catalog/entities/daily-production.entity';
-import { RecipeMenu } from 'src/modules/catalog/entities/recipe-menu.entity';
-import { Item } from 'src/modules/catalog/entities/item.entity';
+import { RecipeMenu } from '../../catalog/entities/recipe-menu.entity';
+import { Item } from '../../catalog/entities/item.entity';
 import { RecipeSupply } from './recipe-supply.entity';
 
 @Entity('recipes')

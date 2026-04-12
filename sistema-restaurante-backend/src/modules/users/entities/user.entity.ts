@@ -1,8 +1,8 @@
-import { BaseEntity } from 'src/common/entities/base.entity';
+import { BaseEntity } from '../../../common/entities/base.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { UserRole } from '../enums/user-role.enum';
 
-import { Order } from 'src/modules/orders/entities/order.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity('users')
 export class User extends BaseEntity {

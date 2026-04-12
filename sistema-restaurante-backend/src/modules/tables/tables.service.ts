@@ -5,7 +5,6 @@ import { EntityManager, Repository } from 'typeorm';
 import { Table } from './entities/table.entity';
 import { CreateTableDto } from './dto/create-table.dto';
 import { TableResponseDto } from './dto/table-response.dto';
-import { table } from 'console';
 import { TableStatus } from './enums/table-status.enum';
 @Injectable()
 export class TablesService {

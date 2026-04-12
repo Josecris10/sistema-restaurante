@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { BaseResponseDto } from '../../common/dto/base-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
 import { AddItemDetailsDto } from './dto/add-item-details.dto.ts';
 import { UpdateKitchenStateDto } from './dto/update-kitchen-state.dto';

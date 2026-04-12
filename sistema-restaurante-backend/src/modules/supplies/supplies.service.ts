@@ -16,12 +16,12 @@ import { CreateSupplyDto } from './dto/create-supply.dto';
 import { SupplyDetailDto } from './dto/supply-detail.dto';
 import { UpdateSupplyDto } from './dto/update-supply.dto';
 import { UpdateSupplyBatchDto } from './dto/update-supply-batch.dto';
-import { paginate } from 'src/common/utils/pagination.util';
-import { PaginatedResult } from 'src/common/interfaces/paginated-result.interface';
+import { paginate } from '../../common/utils/pagination.util';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SupplyCreatedEvent } from './events/supply-created.event';
 import { SupplyType } from './enums/supply-type.enum';
-import { SupplyEvents } from 'src/common/enums/events.enum';
+import { SupplyEvents } from '../../common/enums/events.enum';
 
 @Injectable()
 export class SuppliesService {

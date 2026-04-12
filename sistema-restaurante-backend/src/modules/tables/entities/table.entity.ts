@@ -3,7 +3,7 @@ import { BaseEntity } from '../../../common/entities/base.entity';
 import { TableStatus } from '../enums/table-status.enum';
 import { TableUbication } from '../enums/table-ubication.enum';
 
-import { Order } from 'src/modules/orders/entities/order.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity('tables')
 export class Table extends BaseEntity {

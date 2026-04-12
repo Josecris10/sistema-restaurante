@@ -22,6 +22,11 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const existingUser = await this.findOneByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new BadRequestException('El usuario ya existe');
+    }
+
     try {
       const { password, ...userData } = createUserDto;
 
@@ -34,9 +39,10 @@ export class UsersService {
       const { password: _, ...result } = user;
       return result;
     } catch (error) {
-      if (error.code === '23505')
-        throw new BadRequestException('Email/RUT duplicado');
-      throw new InternalServerErrorException('Error al crear usuario');
+      console.error(error);
+      throw new InternalServerErrorException({
+        message: 'Error al crear usuario',
+      });
     }
   }
 

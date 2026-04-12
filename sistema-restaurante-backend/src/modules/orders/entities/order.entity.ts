@@ -2,7 +2,7 @@ import { Entity, Column, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { ItemDetail } from './item-detail.entity';
 import { User } from '../../users/entities/user.entity';
-import { Table } from 'src/modules/tables/entities/table.entity';
+import { Table } from '../../tables/entities/table.entity';
 
 import { KitchenState } from '../enums/kitchen-state.enum';
 import { OrderState } from '../enums/order-state.enum';

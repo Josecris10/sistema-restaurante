@@ -1,7 +1,7 @@
 import { Entity, Column, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Menu } from './menu.entity';
-import { Recipe } from 'src/modules/recipes/entities/recipe.entity';
+import { Recipe } from '../../recipes/entities/recipe.entity';
 
 @Entity('recipe_menus')
 export class RecipeMenu extends BaseEntity {

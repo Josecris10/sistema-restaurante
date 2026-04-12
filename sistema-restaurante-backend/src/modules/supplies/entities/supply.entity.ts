@@ -1,11 +1,11 @@
-import { BaseEntity } from 'src/common/entities/base.entity';
+import { BaseEntity } from '../../../common/entities/base.entity';
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 
 import { SupplyType } from '../enums/supply-type.enum';
 
-import { Item } from 'src/modules/catalog/entities/item.entity';
+import { Item } from '../../catalog/entities/item.entity';
 import { SupplyBatch } from './supply-batch.entity';
-import { RecipeSupply } from 'src/modules/recipes/entities/recipe-supply.entity';
+import { RecipeSupply } from '../../recipes/entities/recipe-supply.entity';
 
 @Entity('supplies')
 export class Supply extends BaseEntity {
