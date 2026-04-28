@@ -9,6 +9,7 @@ import { In, Repository } from 'typeorm';
 import { OnEvent } from '@nestjs/event-emitter';
 import { RecipeCreatedEvent } from '../recipes/events/recipe-created.event';
 import { ItemDto } from './dto/item.dto';
+import { BaseResponseDto } from '../../common/dto/base-response.dto';
 import { RecipesService } from '../recipes/recipes.service';
 import { SuppliesService } from '../supplies/supplies.service';
 import { SupplyCreatedEvent } from '../supplies/events/supply-created.event';
@@ -82,16 +83,14 @@ export class ItemsService {
       await this.create(item);
       console.log('Item creado con éxito en background');
     } catch (error) {
-      let errorMessage = 'Error desconocido';
-
       if (error instanceof Error) {
-        errorMessage = error.message;
+        console.error(
+          `Error al autocompletar el Item para la receta ${payload.recipeName}`,
+          error.message,
+        );
+      } else {
+        console.error('Ocurrió un error inesperado', error);
       }
-
-      console.error(
-        `Error al autocompletar el Item para la receta ${payload.recipeName}`,
-        errorMessage,
-      );
     }
   }
 
@@ -107,16 +106,14 @@ export class ItemsService {
       await this.create(item);
       console.log('Item creado con éxito en background');
     } catch (error) {
-      let errorMessage = 'Error desconocido';
-
       if (error instanceof Error) {
-        errorMessage = error.message;
+        console.error(
+          `Error al autocompletar el Item para el producto ${payload.supplyName}`,
+          error.message,
+        );
+      } else {
+        console.error('Ocurrió un error inesperado', error);
       }
-
-      console.error(
-        `Error al autocompletar el Item para el producto ${payload.supplyName}`,
-        errorMessage,
-      );
     }
   }
 }

@@ -4,6 +4,7 @@ import { BaseEntity } from '../../../common/entities/base.entity';
 import { ItemDetail } from '../../orders/entities/item-detail.entity';
 import { Supply } from '../../supplies/entities/supply.entity';
 import { Recipe } from '../../recipes/entities/recipe.entity';
+
 @Entity('items')
 export class Item extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: false })
