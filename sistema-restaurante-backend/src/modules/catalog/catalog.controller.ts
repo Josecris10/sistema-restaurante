@@ -29,7 +29,7 @@ export class CatalogController {
   @ApiOperation({ summary: 'Obtener menú' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return {
-      data: await this.catalogService.findOne(id),
+      data: await this.catalogService.findOne(id, ['recipeMenus']),
     };
   }
 }
