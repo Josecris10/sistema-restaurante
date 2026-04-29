@@ -15,7 +15,7 @@ export class CreateMenuDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ example: 'Menú del día martes' })
-  name?: string;
+  menuName?: string;
 
   @IsBoolean()
   @IsNotEmpty()

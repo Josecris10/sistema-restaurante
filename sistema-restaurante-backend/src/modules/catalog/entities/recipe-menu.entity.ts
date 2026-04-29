@@ -6,7 +6,7 @@ import { CourseTypeEnum } from '../enums/course-type.dto';
 
 @Entity('recipe_menus')
 export class RecipeMenu extends BaseEntity {
-  @Column({ type: 'varchar', length: 100, unique: true, nullable: false })
+  @Column({ type: 'varchar', length: 100, nullable: false })
   name: string;
 
   @Column({

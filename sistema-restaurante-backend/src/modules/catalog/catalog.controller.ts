@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CatalogService } from './catalog.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -14,6 +22,14 @@ export class CatalogController {
   @Post('/menu')
   @ApiOperation({ summary: 'Ingresar un menú al sistema' })
   async createMenu(@Body() menuInfo: CreateMenuDto) {
-    return { data: this.catalogService.createMenu(menuInfo) };
+    return { data: await this.catalogService.createMenu(menuInfo) };
+  }
+
+  @Get('/menu/:id')
+  @ApiOperation({ summary: 'Obtener menú' })
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return {
+      data: await this.catalogService.findOne(id),
+    };
   }
 }

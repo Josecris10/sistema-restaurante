@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -47,55 +49,73 @@ export class CatalogService {
   async createMenu(menuInfo: CreateMenuDto) {
     const { isTemplate, parentMenuId } = menuInfo;
 
-    const newMenu = this.menuRepository.create({ isTemplate: isTemplate });
     if (!menuInfo.recipes)
       throw new BadRequestException('El campo "recipes" debe estar definido');
     if (menuInfo.recipes.length > 0) {
       const recipeIds = menuInfo.recipes.flatMap((r) => r.recipeId ?? []);
       await this.recipesService.validateRecipesExist(recipeIds);
     }
-    const recipesMenuToSave = this.recipeMenuRepository.create(
-      menuInfo.recipes,
-    );
+    if (!menuInfo.targetDay && !isTemplate) {
+      throw new BadRequestException('Debe especificar la fecha del menú');
+    }
+
+    if (isTemplate) {
+      const missing = (['menuName', 'basePrice', 'comboPrice'] as const).find(
+        (prop) => !menuInfo[prop],
+      );
+      if (missing) throw new BadRequestException(`Debe especificar ${missing}`);
+    }
+
+    if (parentMenuId) {
+      const parentMenu = await this.findOne(parentMenuId);
+      menuInfo.menuName = menuInfo.menuName ?? parentMenu?.name;
+      menuInfo.basePrice = menuInfo.basePrice ?? parentMenu?.basePrice;
+      menuInfo.comboPrice = menuInfo.comboPrice ?? parentMenu?.comboPrice;
+    }
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
+    const newMenu = this.menuRepository.create({
+      name: menuInfo.menuName,
+      isTemplate: isTemplate,
+      basePrice: menuInfo.basePrice,
+      comboPrice: menuInfo.comboPrice,
+      targetDay: menuInfo.targetDay ?? undefined,
+      parentMenu: parentMenuId ? { id: parentMenuId } : undefined,
+    });
 
-    if (parentMenuId) {
-      const menuTemplate = await this.findOne(parentMenuId, ['recipeMenus']);
-      if (!menuTemplate)
-        throw new BadRequestException('El menú padre no existe');
-      newMenu.name = menuInfo.name ?? menuTemplate.name;
-      newMenu.basePrice = menuInfo.basePrice ?? menuTemplate.basePrice;
-      newMenu.comboPrice = menuInfo.comboPrice ?? menuTemplate.comboPrice;
-      if (!menuInfo.targetDay)
-        throw new BadRequestException(
-          'Debe especificar el "target_day" para el menú',
-        );
-      newMenu.targetDay = menuInfo.targetDay;
-      newMenu.parentMenu.id = parentMenuId;
-    } else {
-      if (
-        !menuInfo.name ||
-        !menuInfo.basePrice ||
-        !menuInfo.comboPrice ||
-        !menuInfo.targetDay
-      )
-        throw new BadRequestException(
-          `No puede crear un menú sin la información básica`,
-        );
-      newMenu.name = menuInfo.name;
-      newMenu.basePrice = menuInfo.basePrice;
-      newMenu.comboPrice = menuInfo.comboPrice;
-      newMenu.targetDay = menuInfo.targetDay;
-    }
-    recipesMenuToSave.push(
-      ...(menuInfo.recipes?.map((recipe) => {
+    try {
+      await queryRunner.manager.save(newMenu);
+      const recipesMenuToSave = menuInfo.recipes.map((menuRecipeDto) => {
         return this.recipeMenuRepository.create({
-          ...recipe,
+          name: menuRecipeDto.recipeName,
+          courseType: menuRecipeDto.courseType,
           menu: { id: newMenu.id },
+          recipe: { id: menuRecipeDto.recipeId },
         });
-      }) || []),
-    );
+      });
+      await queryRunner.manager.save(recipesMenuToSave);
+      await queryRunner.commitTransaction();
+      return {
+        menuId: newMenu.id,
+        menuName: newMenu.name,
+        recipes: recipesMenuToSave.map((rm) => {
+          return {
+            courseType: rm.courseType,
+            recipeId: rm.recipe.id,
+          };
+        }),
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) throw error;
+      else
+        throw new InternalServerErrorException(
+          'Ocurrió un error al intentar registrar el menú ',
+        );
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

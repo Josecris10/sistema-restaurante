@@ -10,17 +10,12 @@ import { CourseTypeEnum } from '../enums/course-type.dto';
 export class RecipeMenuDto {
   @IsOptional()
   @IsString()
-  name?: string;
+  recipeName?: string;
 
   @IsEnum(CourseTypeEnum)
   @IsNotEmpty()
   courseType: CourseTypeEnum;
 
-  @IsNotEmpty()
   @IsNumber()
-  menuId: number;
-
-  @IsOptional()
-  @IsNumber()
-  recipeId?: number;
+  recipeId: number;
 }
