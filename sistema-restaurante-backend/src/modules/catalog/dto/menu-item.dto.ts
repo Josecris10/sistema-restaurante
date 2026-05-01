@@ -7,15 +7,16 @@ import {
 } from 'class-validator';
 import { CourseTypeEnum } from '../enums/course-type.dto';
 
-export class RecipeMenuDto {
+export class MenuItemDto {
   @IsOptional()
   @IsString()
-  recipeName?: string;
+  itemName?: string;
 
   @IsEnum(CourseTypeEnum)
   @IsNotEmpty()
   courseType: CourseTypeEnum;
 
+  @IsNotEmpty()
   @IsNumber()
-  recipeId: number;
+  itemId: number;
 }

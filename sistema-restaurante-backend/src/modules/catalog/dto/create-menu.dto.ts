@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { RecipeMenuDto } from './recipe-menu.dto';
+import { MenuItemDto } from './menu-item.dto';
 
 export class CreateMenuDto {
   @IsString()
@@ -43,5 +43,5 @@ export class CreateMenuDto {
 
   @IsArray()
   @IsNotEmpty()
-  recipes: RecipeMenuDto[];
+  items: MenuItemDto[];
 }

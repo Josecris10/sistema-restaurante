@@ -8,10 +8,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Menu } from './entities/menu.entity';
-import { RecipeMenu } from './entities/recipe-menu.entity';
+import { MenuItem } from './entities/menu-item.entity';
 import { DailyProduction } from './entities/daily-production.entity';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { RecipesService } from '../recipes/recipes.service';
+import { ItemsService } from './items.service';
 
 @Injectable()
 export class CatalogService {
@@ -19,13 +20,14 @@ export class CatalogService {
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
 
-    @InjectRepository(RecipeMenu)
-    private readonly recipeMenuRepository: Repository<RecipeMenu>,
+    @InjectRepository(MenuItem)
+    private readonly menuItemRespository: Repository<MenuItem>,
 
     @InjectRepository(DailyProduction)
     private readonly dailyProductionRepository: Repository<DailyProduction>,
     private readonly dataSource: DataSource,
     private readonly recipesService: RecipesService,
+    private readonly itemsService: ItemsService,
   ) {}
 
   async validateMenuExists(id: number) {
@@ -49,11 +51,11 @@ export class CatalogService {
   async createMenu(menuInfo: CreateMenuDto) {
     const { isTemplate, parentMenuId } = menuInfo;
 
-    if (!menuInfo.recipes)
-      throw new BadRequestException('El campo "recipes" debe estar definido');
-    if (menuInfo.recipes.length > 0) {
-      const recipeIds = menuInfo.recipes.flatMap((r) => r.recipeId ?? []);
-      await this.recipesService.validateRecipesExist(recipeIds);
+    if (!menuInfo.items)
+      throw new BadRequestException('El campo "items" debe estar definido');
+    if (menuInfo.items.length > 0) {
+      const itemIds = menuInfo.items.flatMap((r) => r.itemId ?? []);
+      await this.itemsService.validateItemsExist(itemIds);
     }
     if (!menuInfo.targetDay && !isTemplate) {
       throw new BadRequestException('Debe especificar la fecha del menú');
@@ -87,23 +89,23 @@ export class CatalogService {
 
     try {
       await queryRunner.manager.save(newMenu);
-      const recipesMenuToSave = menuInfo.recipes.map((menuRecipeDto) => {
-        return this.recipeMenuRepository.create({
-          name: menuRecipeDto.recipeName,
-          courseType: menuRecipeDto.courseType,
+      const menuItems = menuInfo.items.map((itemMenuDto) => {
+        return this.menuItemRespository.create({
+          name: itemMenuDto.itemName,
+          courseType: itemMenuDto.courseType,
           menu: { id: newMenu.id },
-          recipe: { id: menuRecipeDto.recipeId },
+          item: { id: itemMenuDto.itemId },
         });
       });
-      await queryRunner.manager.save(recipesMenuToSave);
+      await queryRunner.manager.save(menuItems);
       await queryRunner.commitTransaction();
       return {
         menuId: newMenu.id,
         menuName: newMenu.name,
-        recipes: recipesMenuToSave.map((rm) => {
+        items: menuItems.map((rm) => {
           return {
             courseType: rm.courseType,
-            recipeId: rm.recipe.id,
+            itemId: rm.item.id,
           };
         }),
       };

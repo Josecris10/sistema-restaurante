@@ -19,7 +19,7 @@ import { SeedModule } from './modules/seed/seed.module';
 import { DailyProduction } from './modules/catalog/entities/daily-production.entity';
 import { Menu } from './modules/catalog/entities/menu.entity';
 import { Table } from './modules/tables/entities/table.entity';
-import { RecipeMenu } from './modules/catalog/entities/recipe-menu.entity';
+import { MenuItem } from './modules/catalog/entities/menu-item.entity';
 import { Order } from './modules/orders/entities/order.entity';
 import { Item } from './modules/catalog/entities/item.entity';
 import { ItemDetail } from './modules/orders/entities/item-detail.entity';
@@ -40,7 +40,7 @@ import { User } from './modules/users/entities/user.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      synchronize: process.env.DB_SYNCHRONIZE === 'true',
+      synchronize: process.env.DB_SYNCHRONIZE === 'false',
       logging: process.env.DB_LOGGING === 'true',
 
       ssl: true,
@@ -52,7 +52,7 @@ import { User } from './modules/users/entities/user.entity';
       entities: [
         Menu,
         DailyProduction,
-        RecipeMenu,
+        MenuItem,
         Order,
         Item,
         ItemDetail,

@@ -2,7 +2,7 @@ import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 
 import { DailyProduction } from '../../catalog/entities/daily-production.entity';
-import { RecipeMenu } from '../../catalog/entities/recipe-menu.entity';
+import { MenuItem } from '../../catalog/entities/menu-item.entity';
 import { Item } from '../../catalog/entities/item.entity';
 import { RecipeSupply } from './recipe-supply.entity';
 
@@ -17,8 +17,8 @@ export class Recipe extends BaseEntity {
   @OneToMany(() => DailyProduction, (dailyProduction) => dailyProduction.recipe)
   dailyProductions: DailyProduction[];
 
-  @OneToMany(() => RecipeMenu, (recipeMenu) => recipeMenu.recipe)
-  recipeMenus: RecipeMenu[];
+  @OneToMany(() => MenuItem, (menuItem) => menuItem.item)
+  menuItems: MenuItem[];
 
   @OneToMany(() => RecipeSupply, (recipeSupply) => recipeSupply.recipe)
   recipeSupplies: RecipeSupply[];

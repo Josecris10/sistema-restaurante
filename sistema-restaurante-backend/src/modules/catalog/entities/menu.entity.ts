@@ -7,7 +7,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
-import { RecipeMenu } from './recipe-menu.entity';
+import { MenuItem } from './menu-item.entity';
 
 @Entity('menus')
 export class Menu extends BaseEntity {
@@ -41,6 +41,6 @@ export class Menu extends BaseEntity {
   @OneToMany(() => Menu, (menu) => menu.parentMenu)
   childrenMenus: Menu[];
 
-  @OneToMany(() => RecipeMenu, (recipeMenu) => recipeMenu.menu)
-  recipeMenus: RecipeMenu[];
+  @OneToMany(() => MenuItem, (menuItem) => menuItem.menu)
+  menuItems: MenuItem[];
 }
