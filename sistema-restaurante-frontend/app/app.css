@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-accent: #ef6c00;
+  --color-brand-dark: #4e342e;
+  --color-brand-surface: #fff3e0;
+  --color-brand-success: #689f38;
+  --color-brand-muted: #757575;
+  --color-brand-base: #fafafa;
+}
+
+html,
+body {
+  @apply bg-white dark:bg-gray-950;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
